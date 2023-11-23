@@ -11,7 +11,12 @@
 #define	DIVIDE		9
 #define EQUAL		10
 #define	VARIABLE	11
-#define	END_OF_FILE	12
+#define LET		12
+#define IF		13
+#define PRINT		14
+#define GOTO		15
+#define GOSUB		16
+#define	END_OF_FILE	9999
 
 #define MAXLINE		1024
 #define	MAXSTRING	256

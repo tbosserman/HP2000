@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
+#include <string.h>
 #include "symbols.h"
 
 extern void errout(char *fmt, ...);
@@ -39,6 +40,8 @@ get_line(FILE *fp)
 	else
 	    return(END_OF_FILE);
     }
+    line.line[strlen(line.line)-1] = '\0';
+    fprintf(stderr, "DEBUG: line='%s'\n", line.line);
     line.curp = line.line;
     line.nextch = -1;
     get_character();
@@ -46,7 +49,7 @@ get_line(FILE *fp)
 }
 
 void
-variable()
+word()
 {
     int		len;
     char	*charp;
@@ -159,6 +162,7 @@ getsym()
     while (isspace(ch))
 	ch = get_character();
 
+    fprintf(stderr, "DEBUG: ch='%c' (%d)\n", ch, ch);
     if (isdigit(ch))
     {
 	number();
@@ -167,7 +171,7 @@ getsym()
 
     if (isalpha(ch))
     {
-	variable();
+	word();
 	return(&symbol);
     }
 
