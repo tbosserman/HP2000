@@ -68,8 +68,11 @@ main(int argc, char *argv[])
     }
     if (fname == NULL)
 	usage();
-    if ((fp = fopen(fname, "r")) == NULL)
-	errout("error opening %s for reading", fname);
+    if (strcmp(fname, "-") == 0)
+	fp = stdin;
+    else
+	if ((fp = fopen(fname, "r")) == NULL)
+	    errout("error opening %s for reading", fname);
 
     while (get_line(fp) == 0)
     {

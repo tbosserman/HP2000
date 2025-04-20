@@ -1,6 +1,6 @@
 CFLAGS=-Wall -g
 
-hp2000: main.o getsym.o parse.o symtab.o let.o
+hp2000: main.o getsym.o parse.o symtab.o let.o alltrim.o
 	$(CC) -o $@ $^
 
 symtab.o: symtab.c symtab.h

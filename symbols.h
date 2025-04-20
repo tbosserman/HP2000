@@ -18,6 +18,9 @@
 #define GOSUB		16
 #define	END_OF_FILE	9999
 
+#define TRUE		1
+#define FALSE		0
+
 #define MAXLINE		1024
 #define	MAXSTRING	256
 

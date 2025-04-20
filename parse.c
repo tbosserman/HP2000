@@ -2,10 +2,19 @@
 #include "symbols.h"
 #include "parse.h"
 
-#define MAX_TOKENS	250
-
 extern void errout(char *fmt, ...);
-extern void let_stmt(symbol_t *sym, symbol_t tokens[], int max_tokens);
+extern void let_stmt(symbol_t *sym, symbol_t tokens[]);
+
+/************************************************************************
+ ********************          STORE_TOKEN           ********************
+ ************************************************************************/
+void
+store_token(symbol_t *tokens, int num_tokens, symbol_t *sym)
+{
+    if (num_tokens >= MAX_TOKENS-1)
+	errout("too many symbols in line");
+    tokens[num_tokens] = *sym;
+}
 
 /************************************************************************
  ********************           PARSE_LINE           ********************
@@ -17,13 +26,16 @@ parse_line()
 
     sym = getsym();
     if (sym->symtype != INTEGER)
-	errout("Syntax error: expected line number");
+    {
+	fprintf(stderr, "Syntax error: expected line number");
+	return;
+    }
     sym = getsym();
     switch(sym->symtype)
     {
 	case VARIABLE:
 	case LET:
-	    let_stmt(sym, tokens, MAX_TOKENS);
+	    let_stmt(sym, tokens);
 	    break;
 	default:
 	    printf("Statement type # %d not implemented yet\n", sym->symtype);

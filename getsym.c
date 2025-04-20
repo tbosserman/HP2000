@@ -5,6 +5,7 @@
 #include "symbols.h"
 
 extern void errout(char *fmt, ...);
+extern int alltrim(char *string);
 
 static line_t	line;
 static symbol_t	symbol;
@@ -41,7 +42,7 @@ get_line(FILE *fp)
 	    return(END_OF_FILE);
     }
     line.line[strlen(line.line)-1] = '\0';
-    fprintf(stderr, "DEBUG: line='%s'\n", line.line);
+    (void)alltrim(line.line);
     line.curp = line.line;
     line.nextch = -1;
     get_character();
@@ -162,7 +163,6 @@ getsym()
     while (isspace(ch))
 	ch = get_character();
 
-    fprintf(stderr, "DEBUG: ch='%c' (%d)\n", ch, ch);
     if (isdigit(ch))
     {
 	number();

@@ -7,68 +7,69 @@
 extern void errout(char *fmt, ...);
 
 /************************************************************************
+ ********************            IN_SET              ********************
+ ************************************************************************/
+int
+in_set(int symtype, int set[])
+{
+    int		i;
+
+    for (i = 0; set[i] >= 0; ++i)
+    {
+	if (symtype == set[i])
+	    return(TRUE);
+    }
+    return(FALSE);
+}
+
+/************************************************************************
  ********************           EXPRESSION           ********************
  ************************************************************************/
 void
-expression(symbol_t tokens[], int num_tokens, int max_tokens)
+expression(symbol_t tokens[], int num_tokens)
 {
-    symbol_t	*sym, operands[MAX_DEPTH], operations[MAX_DEPTH];
-    int		num_operations, num_operands, paren_count;
+    symbol_t	*sym;
+    int		prev_symtype;
+    // Symbols that can preceed an operand.
+    static int	set1[] = { LPAREN, PLUS, MINUS, TIMES, DIVIDE, EQUAL, -1 };
+    // Symbols that can preceed an operator
+    static int	set2[] = { RPAREN, VARIABLE, INTEGER, FLOAT, -1 };
 
-    num_operations = num_operands = paren_count = 0;
+    prev_symtype = tokens[num_tokens-1].symtype;
     for (sym = getsym(); sym->symtype != EOL; sym = getsym())
     {
-	fprintf(stderr, "EXPRESSION: sym=%d\n", sym->symtype);
 	switch(sym->symtype)
 	{
+	    case LPAREN:
 	    case INTEGER:
 	    case FLOAT:
 	    case VARIABLE:
-	    case STRING:
-		if (num_operands > 0 && num_operations == 0)
-		    errout("Syntax error in expression: expected operator");
-		if (num_operands >= MAX_DEPTH-1)
-		    errout("Operand stack overflow in expression");
-		if (num_operations == 0)
-		    operands[num_operands++] = *sym;
-		else
+		if (!in_set(prev_symtype, set1))
 		{
-		    if (num_tokens >= max_tokens - 3)
-			errout("Syntax error: max tokens exceeded (%d)",
-			    max_tokens);
-		    tokens[num_tokens++] = operands[num_operands--];
-		    tokens[num_tokens++] = *sym;
-		    tokens[num_tokens++] = operations[num_operations--];
+		    fprintf(stderr, "Syntax error\n");
+		    return;
 		}
+		store_token(tokens, num_tokens++, sym);
 		break;
 
+	    case RPAREN:
 	    case PLUS:
 	    case MINUS:
 	    case TIMES:
 	    case DIVIDE:
-		if (num_operations >= MAX_DEPTH-1)
-		    errout("Operator stack overflow in expression");
-		if (num_operands == 0)
-		    errout("Syntax error: expected operand in expression");
-		operations[num_operations++] = *sym;
-		break;
-
-	    case LPAREN:
-		paren_count++;
-		break;
-
-	    case RPAREN:
-		if (paren_count == 0)
-		    errout("Syntax error: unmatched right parenthesis");
-		paren_count--;
+		if (!in_set(prev_symtype, set2))
+		{
+		    fprintf(stderr, "Syntax error\n");
+		    return;
+		}
+		store_token(tokens, num_tokens++, sym);
 		break;
 
 	    default:
-		errout("syntax error: unexpected symbol in expression");
-	}
+		fprintf(stderr, "Unexpected symbol: %d\n", sym->symtype);
 
-	if (num_operands >= MAX_DEPTH-1)
-	    errout("Stack overflow in expression");
+	}
+	prev_symtype = sym->symtype;
     }
 }
 
@@ -76,20 +77,22 @@ expression(symbol_t tokens[], int num_tokens, int max_tokens)
  ********************            LET_STMT            ********************
  ************************************************************************/
 void
-let_stmt(symbol_t *sym, symbol_t tokens[], int max_tokens)
+let_stmt(symbol_t *sym, symbol_t tokens[])
 {
     int		num_tokens;
 
+    num_tokens = 0;
+    store_token(tokens, num_tokens++, sym);
     if (sym->symtype == LET)
 	sym = getsym();
     if (sym->symtype != VARIABLE)
 	errout("Syntax error: expected a variable name\n");
+    store_token(tokens, num_tokens++, sym);
 
-    num_tokens = 0;
-    tokens[num_tokens++] = *sym;
     sym = getsym();
     if (sym->symtype != EQUAL)
 	errout("Syntax error: expected equals sign");
+    store_token(tokens, num_tokens++, sym);
 
-    expression(tokens, num_tokens, max_tokens);
+    expression(tokens, num_tokens);
 }
