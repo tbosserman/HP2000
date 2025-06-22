@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <sys/types.h>
 #include "symbols.h"
 #include "parse.h"
 
@@ -23,6 +24,7 @@ void
 parse_line()
 {
     symbol_t	*sym, tokens[MAX_TOKENS];
+    u_int16_t	linenum;
 
     sym = getsym();
     if (sym->symtype != INTEGER)
@@ -30,6 +32,7 @@ parse_line()
 	fprintf(stderr, "Syntax error: expected line number");
 	return;
     }
+    linenum = (u_int16_t)sym->value.intval;
     sym = getsym();
     switch(sym->symtype)
     {

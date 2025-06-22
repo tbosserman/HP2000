@@ -43,6 +43,7 @@ get_line(FILE *fp)
     }
     line.line[strlen(line.line)-1] = '\0';
     (void)alltrim(line.line);
+    puts(line.line);
     line.curp = line.line;
     line.nextch = -1;
     get_character();
@@ -118,10 +119,10 @@ void
 string()
 {
     int		len;
-    char	*charp;
+    char	*charp, stringval[MAXSTRING];
 
     len = 0;
-    charp = symbol.value.strval;
+    charp = stringval;
     symbol.symtype = STRING;
 
     get_character();

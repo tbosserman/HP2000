@@ -25,7 +25,7 @@ in_set(int symtype, int set[])
 /************************************************************************
  ********************           EXPRESSION           ********************
  ************************************************************************/
-void
+int
 expression(symbol_t tokens[], int num_tokens)
 {
     symbol_t	*sym;
@@ -34,6 +34,8 @@ expression(symbol_t tokens[], int num_tokens)
     static int	set1[] = { LPAREN, PLUS, MINUS, TIMES, DIVIDE, EQUAL, -1 };
     // Symbols that can preceed an operator
     static int	set2[] = { RPAREN, VARIABLE, INTEGER, FLOAT, -1 };
+    // Symbols that can preceed a string
+    static int set3[] = { EQUAL, -1 };
 
     prev_symtype = tokens[num_tokens-1].symtype;
     for (sym = getsym(); sym->symtype != EOL; sym = getsym())
@@ -47,7 +49,7 @@ expression(symbol_t tokens[], int num_tokens)
 		if (!in_set(prev_symtype, set1))
 		{
 		    fprintf(stderr, "Syntax error\n");
-		    return;
+		    return(-1);
 		}
 		store_token(tokens, num_tokens++, sym);
 		break;
@@ -65,18 +67,29 @@ expression(symbol_t tokens[], int num_tokens)
 		store_token(tokens, num_tokens++, sym);
 		break;
 
+	    case STRING:
+		if (!in_set(prev_symtype, set3))
+		{
+		    fprintf(stderr, "Syntax error\n");
+		    return(-1);
+		}
+		store_token(tokens, num_tokens++, sym);
+		break;
+
 	    default:
 		fprintf(stderr, "Unexpected symbol: %d\n", sym->symtype);
 
 	}
 	prev_symtype = sym->symtype;
     }
+
+    return(num_tokens);
 }
 
 /************************************************************************
  ********************            LET_STMT            ********************
  ************************************************************************/
-void
+int
 let_stmt(symbol_t *sym, symbol_t tokens[])
 {
     int		num_tokens;
@@ -94,5 +107,7 @@ let_stmt(symbol_t *sym, symbol_t tokens[])
 	errout("Syntax error: expected equals sign");
     store_token(tokens, num_tokens++, sym);
 
-    expression(tokens, num_tokens);
+    num_tokens = expression(tokens, num_tokens);
+
+    return(num_tokens);
 }

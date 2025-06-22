@@ -32,9 +32,9 @@ typedef struct {
 } line_t;
 
 typedef union {
-    int		intval;
+    u_int16_t	intval;
     double	floatval;
-    char	strval[MAXSTRING];
+    u_int16_t	strval; /* Index into string_data[] */
 } value_u;
 
 typedef struct {

@@ -8,6 +8,7 @@
 #include "parse.h"
 
 char		*progname;
+double		variables[26][10];
 
 /************************************************************************
  ********************             ERROUT             ********************
@@ -77,7 +78,7 @@ main(int argc, char *argv[])
     while (get_line(fp) == 0)
     {
 	parse_line();
-	putchar('\n');
+	// putchar('\n');
     }
 
     exit(0);
